@@ -66,7 +66,7 @@ def analyze_image(img):
     }
     
     # Prompt the AI to describe the image
-    prompt_parts = ["describe image and ignore boxes and text over it", image_part]
+    prompt_parts = ["describe image and ignore boxes and text over it and fps counter reading ", image_part]
     try:
         response = model_genai.generate_content(prompt_parts)
 
