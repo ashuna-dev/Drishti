@@ -54,10 +54,10 @@ last_analysis_time = time.time()
 def speak_text(text):
     tts = gTTS(text=text, lang='en')
 
-        tts_path = "speech.mp3"
-        tts.save(tts_path)
+    tts_path = "speech.mp3"
+    tts.save(tts_path)
 
-        os.system("start " + tts_path)
+    os.system("start " + tts_path)
 
 
 # Function to analyze the image using google.generativeai
