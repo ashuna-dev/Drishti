@@ -44,8 +44,8 @@ object_real_size = 5.5  # Approximate real size of a person in feet
 focal_length = 558  # Focal length (estimated, you may need to adjust)
 
 # Define the speech interval and image analysis interval
-speech_interval = 4
-analysis_interval = 7
+speech_interval = 10
+analysis_interval = 13
 
 last_speech_time = time.time()
 last_analysis_time = time.time()
