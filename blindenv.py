@@ -11,10 +11,10 @@ import os
 from gtts import gTTS
 
 class BlindAssistant:
-    def __init__(self, src='rtsp://192.168.0.100:8080/h264_ulaw.sdp'):
+    def __init__(self):                        #src='rtsp://192.168.29.8:8080/h264_ulaw.sdp'   for Mobile add this right of self
         # Initialize video stream and YOLO model
-        self.src = src
-        self.cap = WebcamVideoStream(src).start()
+        #self.src = src     # uncomment this 
+        self.cap = WebcamVideoStream(src=0).start()   # and remove zero
         self.model = YOLO("yolov8n.pt")
         self.fps = FPS().start()
 
@@ -151,7 +151,7 @@ class BlindAssistant:
                 x1, y1, x2, y2 = coords
                 # Create shorter phrases
                 label = f"{self.classNames[cls]} at {distance:.2f} ft"
-                print(label)  # Output to command line
+                #print(label)  # Output to command line
                 text_to_speak.append(label)
 
                 # Draw bounding box and label
