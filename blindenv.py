@@ -10,8 +10,7 @@ from imutils.video import WebcamVideoStream, FPS
 from pathlib import Path
 import os
 
-# Configure Google Generative AI
-api_key = 'AIzaSyAHR1jdjWT1CF3rGoNhyRmJbEWjbi5GMMw'  # Replace 'your_api_key_here' with your API key
+api_key = 'AIzaSyAHR1jdjWT1CF3rGoNhyRmJbEWjbi5GMMw'  
 genai.configure(api_key=api_key)
 generation_config = {
     "temperature": 0.9,
@@ -23,7 +22,7 @@ model_genai = genai.GenerativeModel("gemini-pro-vision", generation_config=gener
 
 
 # Initialize the video stream and YOLO model
-src="rtsp://192.168.0.100:8080/h264_ulaw.sdp"
+#src="rtsp://192.168.0.100:8080/h264_ulaw.sdp" # used for ipcam on phone
 cap = WebcamVideoStream(src=0).start()
 model = YOLO("yolov8n.pt")
 fps = FPS().start()
