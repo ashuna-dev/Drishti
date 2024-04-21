@@ -52,13 +52,13 @@ last_analysis_time = time.time()
 
 # Function to use macOS say command to convert text to speech
 def speak_text(text):
-    tts = gTTS(text=text, lang='en')
-
-    tts_path = "speech.mp3"
+     # Create the text-to-speech audio file
+    tts = gTTS(text=text, lang="en")
+    tts_path = "temp.mp3"
     tts.save(tts_path)
 
-    os.system("start " + tts_path)
-
+        # Use wmic to invoke Windows Media Player in hidden mode and play the audio file
+    subprocess.run(["wmic", "process", "call", "create", '"wmplayer.exe /play /close ' + tts_path + '"'])
 
 # Function to analyze the image using google.generativeai
 def analyze_image(img):
