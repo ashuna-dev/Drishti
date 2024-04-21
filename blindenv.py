@@ -73,7 +73,7 @@ class BlindAssistant:
         # Create a thread pool executor
         self.executor = ThreadPoolExecutor(max_workers=1)
 
-    def speak_text(text):
+    def speak_text(self,text):
      # Create the text-to-speech audio file
         tts = gTTS(text=text, lang="en")
         tts_path = "temp.mp3"
