@@ -23,7 +23,7 @@ model_genai = genai.GenerativeModel("gemini-pro-vision", generation_config=gener
 
 
 # Initialize the video stream and YOLO model
-src="rtsp://192.168.0.100:8080/h264_ulaw.sdp"
+src="rtsp://192.168.29.8:8080/h264_ulaw.sdp"
 cap = WebcamVideoStream(src=0).start()
 model = YOLO("yolov8n.pt")
 fps = FPS().start()
