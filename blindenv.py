@@ -6,11 +6,12 @@ import cv2
 import math
 import google.generativeai as genai
 from imutils.video import WebcamVideoStream, FPS
-
+from gtts import gTTS
 from pathlib import Path
 import os
 
-api_key = 'AIzaSyAHR1jdjWT1CF3rGoNhyRmJbEWjbi5GMMw'  
+# Configure Google Generative AI
+api_key = 'AIzaSyAHR1jdjWT1CF3rGoNhyRmJbEWjbi5GMMw'  # Replace 'your_api_key_here' with your API key
 genai.configure(api_key=api_key)
 generation_config = {
     "temperature": 0.9,
@@ -22,7 +23,7 @@ model_genai = genai.GenerativeModel("gemini-pro-vision", generation_config=gener
 
 
 # Initialize the video stream and YOLO model
-#src="rtsp://192.168.0.100:8080/h264_ulaw.sdp" # used for ipcam on phone
+src="rtsp://192.168.0.100:8080/h264_ulaw.sdp"
 cap = WebcamVideoStream(src=0).start()
 model = YOLO("yolov8n.pt")
 fps = FPS().start()
@@ -51,7 +52,13 @@ last_analysis_time = time.time()
 
 # Function to use macOS say command to convert text to speech
 def speak_text(text):
-    subprocess.run(["say", text])
+    tts = gTTS(text=text, lang='en')
+
+        tts_path = "speech.mp3"
+        tts.save(tts_path)
+
+        os.system("start " + tts_path)
+
 
 # Function to analyze the image using google.generativeai
 def analyze_image(img):
@@ -66,7 +73,7 @@ def analyze_image(img):
     }
     
     # Prompt the AI to describe the image
-    prompt_parts = ["describe image and ignore boxes and text over it and fps counter reading ", image_part]
+    prompt_parts = ["describe image and ignore boxes and text over it, also any fps", image_part]
     try:
         response = model_genai.generate_content(prompt_parts)
 
@@ -121,7 +128,8 @@ with ThreadPoolExecutor(max_workers=1) as executor:
             x1, y1, x2, y2 = coords
             # Create shorter phrases
             label = f"{classNames[cls]} at {distance:.2f} ft"
-            print(label)  # Output to command line
+            print(label)
+            time.sleep(1)
             text_to_speak.append(label)
 
             # Draw bounding box and label
