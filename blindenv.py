@@ -53,7 +53,7 @@ class BlindAssistant:
 
         # Define intervals
         self.speech_interval = 5
-        self.analysis_interval = 5
+        self.analysis_interval = 9
 
         # Initialize last speech and analysis times
         self.last_speech_time = time.time()
