@@ -1,139 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blind Assistant</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <style>
-       h1, h2, p {
-        transition: opacity 0.3s ease;
-    }
-
-    h1:hover, h2:hover, p:hover {
-        opacity: 0.7;
-    }
-
-    .feature {
-        transition: background 0.3s ease;
-    }
-
-    .feature:hover {
-        background: rgba(255, 255, 255, 0.1);
-    }
-
-    .feature:hover .description {
-        opacity: 1;
-    }
-
-        .eye {
-            position: relative;
-            top: 2%;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 72px;
-            color: #fff;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            z-index: 1;
-        }
-
-        .eye:hover {
-            opacity: 1;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #fff;
-            opacity: 0;
-            z-index: -1;
-            transition: opacity 1s ease;
-        }
-
-        .overlay.active {
-            opacity: 1;
-            z-index: 1;
-        }
-
-        .description {
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-
-        .feature:hover .description {
-            opacity: 1;
-        }
-        
-        
-        
-    </style>
+    <title>AI EYE-Seeing beyond sight</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    
 </head>
-<body class="bg-black text-white min-h-screen flex flex-col justify-center items-center">
-    <div class="container mx-auto text-center relative">
-        <div class="eye">&#x1F441;</div>
-        <h1 class="text-4xl font-bold mb-6">Welcome to Blind Assistant</h1>
-        <p class="text-lg mb-8">A real-time object detection system to assist visually impaired individuals.</p>
-        <button onclick="startAssistant()" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">Run Assistant</button>
-        <div class="grid grid-cols-2 gap-8 mt-12">
-            <div class="feature">
-                <h2 class="text-xl font-semibold">Real-time Object Detection</h2>
-                <p class="description">Detects objects in real-time using computer vision.</p>
-            </div>
-            <div class="feature">
-                <h2 class="text-xl font-semibold">Multilingual Support</h2>
-                <p class="description">Supports multiple languages for user interaction.</p>
-            </div>
-            <div class="feature">
-                <h2 class="text-xl font-semibold">Audio Feedback</h2>
-                <p class="description">Provides audio feedback for detected objects and surroundings.</p>
-            </div>
-            <div class="feature">
-                <h2 class="text-xl font-semibold">Inclusive Interface</h2>
-                <p class="description">Designed for accessibility with a user-friendly interface.</p>
+
+<body>
+    <!-- navbar sections starts  -->
+    <header class="header">
+        <div class="logo">
+            
+
+        </div>
+
+        <nav class="navbar">
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="#download">Download</a>
+            <a href="#footer">Contact</a>
+            <a href="#" class="btn">Log in</a>
+        </nav>
+
+
+        <div class="fas fa-bars" id="menu-btn"></div>
+    </header>
+    <!-- navbar sections starts  -->
+
+   
+    <!-- home section stars  -->
+
+    <section class="home" id="home">
+        <div class="content">
+            <h1>AI EYE</h1>
+            <p> Empowering Blind Individuals with Real-Time Environmental Awareness</p>
+            <a href="#" class="home-btn" onclick="startAssistant()">Run Assistant</a>
+
+        </div>
+    
+        <div class="image">
+            <a href="https://imgur.com/a/BtUwTYe"></a>
+            <div class="iris">
+                <img src="{{ url_for('static', filename='images/iris.jpeg') }}" alt="iris-image">
             </div>
         </div>
-    </div>
-    <div class="overlay"></div>
+    </section>
+    
 
+    <!-- home section ends -->
+
+    <!-- features sectin starts  -->
+
+    <section class="features" id="features">
+        <div class="heading">
+            <h1>Features</h1>
+
+
+
+        </div>
+
+
+        <div class="row">
+            <!-- 1 Tab  -->
+            <div class="image">
+                <img src="{{ url_for('static', filename='images/Emotion.jpeg') }}" alt="illustration-features-tab-1">
+
+            </div>
+
+
+            <div class="content">
+                <h1>Emotion Detection</h1>
+                <p>With our app, you'll be able to understand people's feelings and emotions by simply pointing your device towards them, enhancing your awareness of the environment</p>
+                <a href="#" class="all-btn">more info</a>
+            </div>
+
+            <!-- 1 Tab  -->
+
+            <!-- 2 Tab  -->
+            <div class="content">
+                <h1>Object Detection</h1>
+                <p>Stay safe while navigating with our app's ability to estimate distances to nearby objects, helping you avoid obstacles and move confidently.
+                </p>
+                <a href="#" class="all-btn">more info</a>
+            </div>
+
+            <div class="image">
+                <img src="{{ url_for('static', filename='images/illustration-features-tab-2.svg') }}" alt="illustration-features-tab-2">
+            </div>
+
+            <!-- 2 Tab  -->
+
+            <div class="image">
+                <img src="{{ url_for('static', filename='images/illustration-features-tab-3.svg') }}" alt="illustration-features-tab-3">
+            </div>
+
+            <div class="content">
+                <h1>Multi-Lingual Support</h1>
+                <p>Our app speaks your language! Enjoy the convenience of using our service in multiple languages, ensuring accessibility for users worldwide</p>
+                <a href="#" class="all-btn">more info</a>
+            </div>
+
+
+            <!-- 3 Tab  -->
+
+        </div>
+    </section>
+
+
+    <!-- features sectin ends -->
+
+
+    <!-- downloads section starts  -->
+
+    <section class="download" id="download">
+        <div class="heading">
+            <h1>Download API</h1>
+            <p>We've got more browsers in the pipeline. Please do le us know if you got've got a favorite you'd like us to prioritize</p>
+        </div>
+
+        <div class="box-container">
+            <div class="box">
+                <img src="{{ url_for('static', filename='images/logo-chrome.svg') }}" alt="logo-chrome">
+
+                <h3>Add to Chrome</h3>
+                <p>Minimum Version 63</p>
+                <a href="#" class="all-btn">install</a>
+            </div>
+
+            <div class="box">
+                <img src="{{ url_for('static', filename='images/logo-firefox.svg') }}" alt="logo-firefox">
+
+
+                <h3>Add to Firefox</h3>
+                <p>Minimum Version 55</p>
+                <a href="#" class="all-btn">install</a>
+            </div>
+
+            <div class="box">
+                <img src="{{ url_for('static', filename='images/logo-firefox.svg') }}" alt="logo-firefox">
+
+                <h3>Add to Opera</h3>
+                <p>Minimum Version 46</p>
+                <a href="#" class="all-btn">install</a>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- downloads section ends -->
+
+
+
+    <!-- footer section starts  -->
+
+   <section class="footer" id="footer">
+       <div class="box-container">
+           <div class="box">
+               <h3>quick links</h3>
+               <a href="#"><i class="fas fa-chevron-right"></i>home</a>
+               <a href="#"><i class="fas fa-chevron-right"></i>features</a>
+               <a href="#"><i class="fas fa-chevron-right"></i>download</a>
+               <a href="#"><i class="fas fa-chevron-right"></i>contact</a>
+            </div>
+            
+            
+            <div class="box">
+                <h3>our services</h3>
+                <a href="#"><i class="fas fa-chevron-right"></i>bookmark extension</a>
+                <a href="#"><i class="fas fa-chevron-right"></i>chrome themes</a>
+                <a href="#"><i class="fas fa-chevron-right"></i>firefox themes</a>
+                <a href="#"><i class="fas fa-chevron-right"></i>screen recorder extension</a>
+                <a href="#"><i class="fas fa-chevron-right"></i>screen shot extension</a>
+           </div>
+
+           <div class="box">
+               <h3>contact info</h3>
+               <a href="#"><i class="fas fa-phone"></i>+123-456-789</a>
+               <a href="#"><i class="fas fa-phone"></i>+111-222-3333</a>
+               <a href="#"><i class="fas fa-envelope"></i>company@example.com</a>
+               <a href="#"><i class="fas fa-envelope"></i>company@example.com</a>
+               <a href="#"><i class="fas fa-map-marker-alt"></i>Mumbai, india - 12345</a>
+           </div>
+
+           <div class="box">
+               <h3>follow us</h3>
+               <a href="#"><i class="fab fa-facebook-f"></i>facebook</a>
+               <a href="#"><i class="fab fa-twitter"></i>facebook</a>
+               <a href="#"><i class="fab fa-instagram"></i>instagram</a>
+               <a href="#"><i class="fab fa-linkedin"></i>linkedin</a>
+               <a href="#"><i class="fab fa-pinterest"></i>pinterest</a>
+           </div>
+       </div>
+
+
+       <div class="credit">created by
+           <a href="https://www.youtube.com/channel/UCK5YMqyy_fjAtwgu9hjxXJg" target="_blank"><span>Pranav Raj</span> | all rights reserved</a>
+       </div>
+   </section>
+
+    <!-- footer section ends -->
+
+
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
     <script>
-    function startAssistant() {
-        const eye = document.querySelector('.eye');
-        const overlay = document.querySelector('.overlay');
-
-        // Open the eye gradually
-        let opacity = 0;
-        const intervalId = setInterval(() => {
-            opacity += 0.1;
-            eye.style.opacity = opacity;
-            if (opacity >= 0.75) {
-                clearInterval(intervalId);
-                eye.innerHTML = '&#x1F441;&#x1F441;'; // Fully open the eye
-                overlay.classList.add('active'); // Activate the overlay
-
-                // Make an AJAX request to start the program
-                fetch('/start_program', { method: 'POST' })
-                    .then(response => {
-                        if (response.ok) {
-                            // Redirect to the "/assistant" route after a delay
-                            setTimeout(() => {
-                                window.location.href = '/assistant';
-                            }, 1000); // 1 second delay after full eye opening
-                        } else {
-                            console.error('Failed to start assistant');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error starting assistant:', error);
-                    });
-            }
-        }, 50); // Adjust the interval for smoother animation
-    }
-</script>
-
+        function startAssistant() {
+            // Add your code here to start the Blind Assistant
+            // For example:
+            console.log("Starting Blind Assistant...");
+            // You can make an AJAX request to your Flask server to trigger the Blind Assistant
+            // Here's a sample AJAX request using fetch:
+            fetch('/start_program', { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        console.log("Blind Assistant started successfully!");
+                        // Redirect the user to the assistant page
+                        window.location.href = '/assistant';
+                    } else {
+                        console.error('Failed to start Blind Assistant');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error starting Blind Assistant:', error);
+                });
+        }
+    </script>
     
 </body>
+
 </html>
