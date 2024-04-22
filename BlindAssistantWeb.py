@@ -21,7 +21,8 @@ class BlindAssistant:
     def __init__(self):
         # Initialize video stream and YOLO model
         #self.src = src
-        self.cap = WebcamVideoStream(src=0).start()
+        self.cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+
         self.model = YOLO("yolov8n.pt")
         self.fps = FPS().start()
         
