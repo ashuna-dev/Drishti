@@ -123,7 +123,7 @@ class BlindAssistant:
             direction = "center"
         
         return direction
-    def speak_text(self, text,lang='hi'):
+    def speak_text(self, text,lang='en'):
     # Initialize gTTS with the text
         #translated_text = GoogleTranslator(source='auto', target=lang).translate(text)
 
@@ -135,7 +135,7 @@ class BlindAssistant:
         tts.save(tts_path)
 
     # Use a media player to play the speech
-        subprocess.run(["afplay", tts_path])
+        subprocess.run(["wmic", "process", "call", "create", '"wmplayer.exe /play /close ' + tts_path + '"'])
 
 
     def analyze_image(self, img):
