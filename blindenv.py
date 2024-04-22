@@ -131,11 +131,12 @@ class BlindAssistant:
         tts = gTTS(text=text, lang=lang)
         
     # Save the speech to a temporary file
-        tts_path = "speech.mp3"
+        tts_path = "temp.mp3"
         tts.save(tts_path)
 
     # Use a media player to play the speech
-        subprocess.run(["afplay", tts_path])
+        subprocess.run(["wmic", "process", "call", "create", '"wmplayer.exe /play /close ' + tts_path + '"'])
+
 
 
     def analyze_image(self, img):
