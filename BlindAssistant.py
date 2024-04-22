@@ -18,10 +18,10 @@ class TrackedObject:
         self.coords = coords
 
 class BlindAssistant:
-    def __init__(self, src="rtsp://192.168.0.100:8080/h264_ulaw.sdp"):
+    def __init__(self):
         # Initialize video stream and YOLO model
-        self.src = src
-        self.cap = WebcamVideoStream(src).start()
+        #self.src = src
+        self.cap = WebcamVideoStream(src=0).start()
         self.model = YOLO("yolov8n.pt")
         self.fps = FPS().start()
         
