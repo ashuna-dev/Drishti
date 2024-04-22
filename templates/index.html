@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blind Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+       h1, h2, p {
+        transition: opacity 0.3s ease;
+    }
+
+    h1:hover, h2:hover, p:hover {
+        opacity: 0.7;
+    }
+
+    .feature {
+        transition: background 0.3s ease;
+    }
+
+    .feature:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .feature:hover .description {
+        opacity: 1;
+    }
+
+        .eye {
+            position: relative;
+            top: 2%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 72px;
+            color: #fff;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 1;
+        }
+
+        .eye:hover {
+            opacity: 1;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 1s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            z-index: 1;
+        }
+
+        .description {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .feature:hover .description {
+            opacity: 1;
+        }
+        
+        
+        
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col justify-center items-center">
+    <div class="container mx-auto text-center relative">
+        <div class="eye">&#x1F441;</div>
+        <h1 class="text-4xl font-bold mb-6">Welcome to Blind Assistant</h1>
+        <p class="text-lg mb-8">A real-time object detection system to assist visually impaired individuals.</p>
+        <button onclick="startAssistant()" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">Run Assistant</button>
+        <div class="grid grid-cols-2 gap-8 mt-12">
+            <div class="feature">
+                <h2 class="text-xl font-semibold">Real-time Object Detection</h2>
+                <p class="description">Detects objects in real-time using computer vision.</p>
+            </div>
+            <div class="feature">
+                <h2 class="text-xl font-semibold">Multilingual Support</h2>
+                <p class="description">Supports multiple languages for user interaction.</p>
+            </div>
+            <div class="feature">
+                <h2 class="text-xl font-semibold">Audio Feedback</h2>
+                <p class="description">Provides audio feedback for detected objects and surroundings.</p>
+            </div>
+            <div class="feature">
+                <h2 class="text-xl font-semibold">Inclusive Interface</h2>
+                <p class="description">Designed for accessibility with a user-friendly interface.</p>
+            </div>
+        </div>
+    </div>
+    <div class="overlay"></div>
+
+    <script>
+    function startAssistant() {
+        const eye = document.querySelector('.eye');
+        const overlay = document.querySelector('.overlay');
+
+        // Open the eye gradually
+        let opacity = 0;
+        const intervalId = setInterval(() => {
+            opacity += 0.1;
+            eye.style.opacity = opacity;
+            if (opacity >= 0.75) {
+                clearInterval(intervalId);
+                eye.innerHTML = '&#x1F441;&#x1F441;'; // Fully open the eye
+                overlay.classList.add('active'); // Activate the overlay
+
+                // Make an AJAX request to start the program
+                fetch('/start_program', { method: 'POST' })
+                    .then(response => {
+                        if (response.ok) {
+                            // Redirect to the "/assistant" route after a delay
+                            setTimeout(() => {
+                                window.location.href = '/assistant';
+                            }, 1000); // 1 second delay after full eye opening
+                        } else {
+                            console.error('Failed to start assistant');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error starting assistant:', error);
+                    });
+            }
+        }, 50); // Adjust the interval for smoother animation
+    }
+</script>
+
+    
+</body>
+</html>
