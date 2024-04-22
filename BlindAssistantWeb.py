@@ -9,7 +9,7 @@ from imutils.video import WebcamVideoStream, FPS
 from pathlib import Path
 import os
 from gtts import gTTS
-#from deep_translator import GoogleTranslator # multilingual support
+#from deep_translator import GoogleTranslator
 
 
 class TrackedObject:
@@ -21,8 +21,7 @@ class BlindAssistant:
     def __init__(self):
         # Initialize video stream and YOLO model
         #self.src = src
-        self.cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-
+        self.cap = WebcamVideoStream(src=0).start()
         self.model = YOLO("yolov8n.pt")
         self.fps = FPS().start()
         
@@ -126,18 +125,17 @@ class BlindAssistant:
         return direction
     def speak_text(self, text,lang='en'):
     # Initialize gTTS with the text
-        #translated_text = GoogleTranslator(source='auto', target=lang).translate(text) # multilingual support
+        #translated_text = GoogleTranslator(source='auto', target=lang).translate(text)
 
         # Initialize gTTS with the translated text
         tts = gTTS(text=text, lang=lang)
         
     # Save the speech to a temporary file
-        tts_path = "temp.mp3"
+        tts_path = "speech.mp3"
         tts.save(tts_path)
 
     # Use a media player to play the speech
         subprocess.run(["wmic", "process", "call", "create", '"wmplayer.exe /play /close ' + tts_path + '"'])
-
 
 
     def analyze_image(self, img):
@@ -153,7 +151,7 @@ class BlindAssistant:
         }
 
         # Prompt the AI to describe the image
-        prompt_parts = ["describe image and ignore boxes and text over it, also any fps. make it read in natural language so that a blind person is able to understand the enviromen", image_part]
+        prompt_parts = ["describe image and ignore boxes and text over it, also any fps. make it read in natural language so that a blind person is able to understand the enviroment. If a person is present describe its emotions.", image_part]
         try:
             response = self.model_genai.generate_content(prompt_parts)
 
@@ -173,7 +171,137 @@ class BlindAssistant:
         # Clean up the temporary image file
         os.remove(image_path)
 
-    
+    def apply_nms(self, detections, iou_threshold):
+        # Sort detections by confidence score (descending order)
+        detections.sort(key=lambda x: x[1], reverse=True)
+        # Initialize list to store filtered detections
+        filtered_detections = []
+        while detections:
+            # Select detection with highest confidence score
+            max_conf_detection = detections[0]
+            filtered_detections.append(max_conf_detection)
+            # Calculate IoU with other detections
+            detections = [d for d in detections if self.calculate_iou(max_conf_detection, d) <= iou_threshold]
+        return filtered_detections
+
+    def calculate_iou(self, box1, box2):
+        # Calculate intersection coordinates
+        intersection_x1 = max(box1[3][0], box2[3][0])
+        intersection_y1 = max(box1[3][1], box2[3][1])
+        intersection_x2 = min(box1[3][2], box2[3][2])
+        intersection_y2 = min(box1[3][3], box2[3][3])
+        # Calculate intersection area
+        intersection_area = max(0, intersection_x2 - intersection_x1 + 1) * max(0, intersection_y2 - intersection_y1 + 1)
+        # Calculate union area
+        box1_area = (box1[3][2] - box1[3][0] + 1) * (box1[3][3] - box1[3][1] + 1)
+        box2_area = (box2[3][2] - box2[3][0] + 1) * (box2[3][3] - box2[3][1] + 1)
+        union_area = box1_area + box2_area - intersection_area
+        # Calculate IoU
+        iou = intersection_area / union_area
+        return iou
+
+    def refine_bounding_boxes(self, detections):
+        refined_detections = []
+        for detection in detections:
+            refined_detection = detection  # Placeholder for refinement (adjust as needed)
+            refined_detections.append(refined_detection)
+        return refined_detections
+
+    def generate_frames_with_audio(self):
+        while True:
+            img = self.cap.read()
+            if img is None or img.size == 0:
+                continue  # Skip invalid frames
+
+            results = self.model(img, stream=True)
+
+            objects = []
+            # Process detections and sort them by distance (closest to furthest)
+            for r in results:
+                boxes = r.boxes
+                for box in boxes:
+                    x1, y1, x2, y2 = box.xyxy[0]
+                    x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+                    confidence = math.ceil((box.conf[0] * 100)) / 100
+                    cls = int(box.cls[0])
+                    box_width = x2 - x1
+                    box_height = y2 - y1
+                    object_size_in_frame = max(box_width, box_height)
+                    real_size = self.object_real_height[self.classNames[cls]]
+                    distance = (real_size * self.focal_length) / object_size_in_frame
+                    distance = round(distance, 2)
+                    smoothed_distance = self.calculate_moving_avg(self.classNames[cls], distance)
+
+                    objects.append((cls, confidence, smoothed_distance, (x1, y1, x2, y2)))
+             
+             
+                    
+            objects = self.apply_nms(objects, iou_threshold=0.5)
+
+            # Refine bounding boxes
+            objects = self.refine_bounding_boxes(objects)
+            
+            # Sort objects by distance (closest first)
+            objects.sort(key=lambda obj: obj[2])
+
+            # Sort objects by distance (closest first)
+
+            # Prepare text to speak
+            text_to_speak = []
+            for i, obj in enumerate(objects, 1):
+                cls, confidence, distance, coords = obj
+                x1, y1, x2, y2 = coords
+                direction = self.calculate_direction((x1 + x2) // 2)
+
+                # Create shorter phrases
+                label = f"{self.classNames[cls]} at {distance:.2f} meters, {direction}"
+                text_to_speak.append(label)
+
+                # Draw bounding box and label
+                cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 255), 3)
+                cv2.putText(img, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+
+                # Update or create tracked object
+                if cls in self.tracked_objects:
+                    self.tracked_objects[cls].coords = coords
+                else:
+                    self.tracked_objects[cls] = TrackedObject(cls, coords)
+
+            # Get the current time
+            current_time = time.time()
+
+            # Speak the accumulated text if the speech interval has passed
+            if current_time - self.last_speech_time >= self.speech_interval:
+                if text_to_speak:
+                    # Submit the TTS task to the thread pool executor for asynchronous execution
+                    self.executor.submit(self.speak_text, "\n".join(text_to_speak))
+                self.last_speech_time = current_time
+
+            # Analyze the image if the analysis interval has passed
+            if current_time - self.last_analysis_time >= self.analysis_interval:
+                # Submit the image analysis task to the thread pool executor for asynchronous execution
+                self.executor.submit(self.analyze_image, img)
+                self.last_analysis_time = current_time
+
+            # Get the current time after processing
+            current_time_after_processing = time.time()
+
+            # Calculate time taken for processing
+            processing_time = current_time_after_processing - current_time
+
+            # Delay the loop to match the desired FPS
+            #delay_time = max(1 / self.desired_fps - processing_time, 0)
+            #time.sleep(delay_time)
+
+            # Yield the processed frame
+            _, buffer = cv2.imencode('.jpg', img)
+            img_bytes = buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + img_bytes + b'\r\n')
+
+            # Break the loop if 'q' is pressed
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
     def run(self):
         # Main loop
@@ -263,7 +391,12 @@ class BlindAssistant:
         self.cap.stop()
         cv2.destroyAllWindows()
         print(f"[INFO] Approx. FPS: {fps_value:.2f}")
-
+        
+    def end_program(self):
+        # Cleanup resources
+        self.cap.stop()
+        cv2.destroyAllWindows()
+        self.program_running = False
 # Instantiate and run the object detection system
 if __name__ == "__main__":
     obj_detection_system = BlindAssistant()
