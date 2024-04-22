@@ -9,7 +9,7 @@ from imutils.video import WebcamVideoStream, FPS
 from pathlib import Path
 import os
 from gtts import gTTS
-from deep_translator import GoogleTranslator
+#from deep_translator import GoogleTranslator
 
 
 class TrackedObject:
@@ -125,10 +125,10 @@ class BlindAssistant:
         return direction
     def speak_text(self, text,lang='hi'):
     # Initialize gTTS with the text
-        translated_text = GoogleTranslator(source='auto', target=lang).translate(text)
+        #translated_text = GoogleTranslator(source='auto', target=lang).translate(text)
 
         # Initialize gTTS with the translated text
-        tts = gTTS(text=translated_text, lang=lang)
+        tts = gTTS(text=text, lang=lang)
         
     # Save the speech to a temporary file
         tts_path = "speech.mp3"
