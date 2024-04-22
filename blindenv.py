@@ -9,14 +9,24 @@ from imutils.video import WebcamVideoStream, FPS
 from pathlib import Path
 import os
 from gtts import gTTS
+#from deep_translator import GoogleTranslator # multilingual support
+
+
+class TrackedObject:
+    def __init__(self, cls, coords):
+        self.cls = cls
+        self.coords = coords
 
 class BlindAssistant:
-    def __init__(self):                        #src='rtsp://192.168.29.8:8080/h264_ulaw.sdp'   for Mobile add this right of self
+    def __init__(self):
         # Initialize video stream and YOLO model
-        #self.src = src     # uncomment this 
-        self.cap = WebcamVideoStream(src=0).start()   # and remove zero
+        #self.src = src
+        self.cap = WebcamVideoStream(src=0).start()
         self.model = YOLO("yolov8n.pt")
         self.fps = FPS().start()
+        
+        
+        
 
         # Define object classes and other parameters
         self.classNames =["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat",
@@ -31,34 +41,42 @@ class BlindAssistant:
               "teddy bear", "hair drier", "toothbrush"]
         
         
-        self.object_real_size = {"person": 5.5, "bicycle": 6.0, "car": 15.0, "motorbike": 6.0, "aeroplane": 30.0, 
-                                  "bus": 40.0, "train": 60.0, "truck": 25.0, "boat": 20.0, "traffic light": 3.0, 
-                                  "fire hydrant": 3.0, "stop sign": 3.0, "parking meter": 4.0, "bench": 5.0, 
-                                  "bird": 0.5, "cat": 1.0, "dog": 1.0, "horse": 8.0, "sheep": 5.0, "cow": 6.0, 
-                                  "elephant": 12.0, "bear": 7.0, "zebra": 7.0, "giraffe": 16.0, "backpack": 1.5, 
-                                  "umbrella": 2.0, "handbag": 1.5, "tie": 1.0, "suitcase": 3.0, "frisbee": 1.0, 
-                                  "skis": 5.0, "snowboard": 5.0, "sports ball": 1.0, "kite": 3.0, "baseball bat": 3.0,
-                                  "baseball glove": 1.0, "skateboard": 3.0, "surfboard": 6.0, "tennis racket": 3.0,
-                                  "bottle": 1.0, "wine glass": 1.0, "cup": 3.0, "fork": 1.0, "knife": 1.0, 
-                                  "spoon": 1.0, "bowl": 4.0, "banana": 1.0, "apple": 1.0, "sandwich": 4.0, 
-                                  "orange": 2.0, "broccoli": 2.0, "carrot": 2.0, "hot dog": 2.0, "pizza": 5.0, 
-                                  "donut": 1.0, "cake": 5.0, "chair": 3.0, "sofa": 6.0, "potted plant": 2.0, 
-                                  "bed": 6.0, "dining table": 6.0, "toilet": 3.0, "tv monitor": 5.0, "laptop": 1.0, 
-                                  "mouse": 1.0, "remote": 1.0, "keyboard": 1.0, "cell phone": 1.0, "microwave": 3.0, 
-                                  "oven": 3.0, "toaster": 2.0, "sink": 2.0, "refrigerator": 5.0, "book": 1.0, 
-                                  "clock": 1.0, "vase": 2.0, "scissors": 1.0, "teddy bear": 2.0, "hair drier": 1.0, 
-                                  "toothbrush": 1.0}
+        self.object_real_height = {"person": 1.75, "bicycle": 1.0, "car": 1.5, "motorbike": 1.0, "aeroplane": 2.0, 
+                                 "bus": 3.0, "train": 4.0, "truck": 2.5, "boat": 2.0, "traffic light": 0.5, 
+                                 "fire hydrant": 0.5, "stop sign": 0.5, "parking meter": 0.5, "bench": 1.0, 
+                                 "bird": 0.2, "cat": 0.3, "dog": 0.3, "horse": 1.6, "sheep": 1.0, "cow": 1.2, 
+                                 "elephant": 2.5, "bear": 1.5, "zebra": 1.5, "giraffe": 3.0, "backpack": 0.4, 
+                                 "umbrella": 1.0, "handbag": 0.4, "tie": 0.2, "suitcase": 0.6, "frisbee": 0.2, 
+                                 "skis": 1.5, "snowboard": 1.5, "sports ball": 0.3, "kite": 0.6, "baseball bat": 0.8,
+                                 "baseball glove": 0.2, "skateboard": 0.8, "surfboard": 1.5, "tennis racket": 0.8,
+                                 "bottle": 0.2, "wine glass": 0.2, "cup": 0.6, "fork": 0.2, "knife": 0.2, 
+                                 "spoon": 0.2, "bowl": 0.8, "banana": 0.2, "apple": 0.2, "sandwich": 0.8, 
+                                 "orange": 0.4, "broccoli": 0.4, "carrot": 0.4, "hot dog": 0.4, "pizza": 0.6, 
+                                 "donut": 0.2, "cake": 0.6, "chair": 1.0, "sofa": 2.0, "potted plant": 0.4, 
+                                 "bed": 2.0, "dining table": 1.0, "toilet": 0.8, "tv monitor": 1.5, "laptop": 0.3, 
+                                 "mouse": 0.1, "remote": 0.1, "keyboard": 0.2, "cell phone": 0.2, "microwave": 0.6, 
+                                 "oven": 0.6, "toaster": 0.4, "sink": 0.4, "refrigerator": 1.5, "book": 0.2, 
+                                 "clock": 0.3, "vase": 0.4, "scissors": 0.2, "teddy bear": 0.4, "hair drier": 0.2, 
+                                 "toothbrush": 0.2}
         
-        self.focal_length = 558  # Focal length (estimated, you may need to adjust)
-
         # Define intervals
-        self.speech_interval = 5
-        self.analysis_interval = 9
+        self.speech_interval = 6
+        self.analysis_interval = 10
 
         # Initialize last speech and analysis times
         self.last_speech_time = time.time()
         self.last_analysis_time = time.time()
 
+        
+        '''self.camera_height = 1.5  # meters
+        self.pitch_angle = math.radians(45)  # Convert pitch angle to radians
+        self.vfov = math.radians(60)  # Vertical field of view in radians
+        self.image_height = 480  # Image height
+        self.image_width = 640  # Image width'''
+        self.focal_length = 558
+        self.tracked_objects = {}
+
+        
         # Configure Google Generative AI
         self.api_key = 'AIzaSyAHR1jdjWT1CF3rGoNhyRmJbEWjbi5GMMw'  # Replace with your API key
         genai.configure(api_key=self.api_key)
@@ -72,18 +90,57 @@ class BlindAssistant:
 
         # Create a thread pool executor
         self.executor = ThreadPoolExecutor(max_workers=1)
+        
+        
+        
+        self.moving_avg_window = 5  # Adjust window size as needed
+        self.moving_avg_distances = {cls: [] for cls in self.classNames}
+        
+    
+    
+    def calculate_moving_avg(self, cls, distance):
+        # Append the new distance to the moving average list
+        self.moving_avg_distances[cls].append(distance)
 
-    def speak_text(self,text):
-     # Create the text-to-speech audio file
-        tts = gTTS(text=text, lang="en")
-        tts_path = "temp.mp3"
+        # If the list exceeds the window size, remove the oldest element
+        if len(self.moving_avg_distances[cls]) > self.moving_avg_window:
+            self.moving_avg_distances[cls].pop(0)
+
+        # Calculate the moving average
+        moving_avg = sum(self.moving_avg_distances[cls]) / len(self.moving_avg_distances[cls])
+
+        return moving_avg
+
+    def calculate_direction(self, object_center_x):
+        frame_width = self.cap.frame.shape[1]
+
+        # Calculate the direction of the object from the center of the frame
+        if object_center_x < frame_width // 3:
+            direction = "right"
+        elif object_center_x > 2 * frame_width // 3:
+            direction = "left"
+        else:
+            direction = "center"
+        
+        return direction
+    def speak_text(self, text,lang='en'):
+    # Initialize gTTS with the text
+        #translated_text = GoogleTranslator(source='auto', target=lang).translate(text) # multilingual support
+
+        # Initialize gTTS with the translated text
+        tts = gTTS(text=text, lang=lang)
+        
+    # Save the speech to a temporary file
+        tts_path = "speech.mp3"
         tts.save(tts_path)
 
-        # Use wmic to invoke Windows Media Player in hidden mode and play the audio file
-        subprocess.run(["wmic", "process", "call", "create", '"wmplayer.exe /play /close ' + tts_path + '"'])
+    # Use a media player to play the speech
+        subprocess.run(["afplay", tts_path])
+
 
     def analyze_image(self, img):
         # Save the image temporarily for analysis
+        
         image_path = "image.jpg"
         cv2.imwrite(image_path, img)
 
@@ -94,16 +151,17 @@ class BlindAssistant:
         }
 
         # Prompt the AI to describe the image
-        prompt_parts = ["describe image and ignore boxes and text over it, also any fps", image_part]
+        prompt_parts = ["describe image and ignore boxes and text over it, also any fps. make it read in natural language so that a blind person is able to understand the enviromen", image_part]
         try:
             response = self.model_genai.generate_content(prompt_parts)
 
             # Check the response for correctness
             if response and response.text:
+                
                 # Print the response text
                 print("Analysis response:", response.text)
 
-                # Speak the response text
+                # Speak the response text    
                 self.speak_text(response.text)
             else:
                 print("No valid response received from generative AI.")
@@ -136,10 +194,13 @@ class BlindAssistant:
                     box_width = x2 - x1
                     box_height = y2 - y1
                     object_size_in_frame = max(box_width, box_height)
-                    real_size = self.object_real_size[self.classNames[cls]]
+                    real_size = self.object_real_height[self.classNames[cls]]
                     distance = (real_size * self.focal_length) / object_size_in_frame
                     distance = round(distance, 2)
-                    objects.append((cls, confidence, distance, (x1, y1, x2, y2)))
+                    smoothed_distance = self.calculate_moving_avg(self.classNames[cls], distance)
+
+                    objects.append((cls, confidence, smoothed_distance, (x1, y1, x2, y2)))
+
 
             # Sort objects by distance (closest first)
             objects.sort(key=lambda obj: obj[2])
@@ -149,14 +210,23 @@ class BlindAssistant:
             for i, obj in enumerate(objects, 1):
                 cls, confidence, distance, coords = obj
                 x1, y1, x2, y2 = coords
+                direction = self.calculate_direction((x1 + x2) // 2)
+
                 # Create shorter phrases
-                label = f"{self.classNames[cls]} at {distance:.2f} ft"
-                #print(label)  # Output to command line
+                label = f"{self.classNames[cls]} at {distance:.2f} meters, {direction}"
+                #print(label) 
+                #time.sleep(1)
+
                 text_to_speak.append(label)
 
                 # Draw bounding box and label
                 cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 255), 3)
                 cv2.putText(img, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+                # Update or create tracked object
+                if cls in self.tracked_objects:
+                    self.tracked_objects[cls].coords = coords
+                else:
+                    self.tracked_objects[cls] = TrackedObject(cls, coords)
 
             # Get the current time
             current_time = time.time()
@@ -174,7 +244,6 @@ class BlindAssistant:
                 self.executor.submit(self.analyze_image, img)
                 self.last_analysis_time = current_time
 
-            # Perform additional frame processing
             
 
             # Update the FPS counter and display the frame
@@ -197,3 +266,4 @@ class BlindAssistant:
 if __name__ == "__main__":
     obj_detection_system = BlindAssistant()
     obj_detection_system.run()
+
