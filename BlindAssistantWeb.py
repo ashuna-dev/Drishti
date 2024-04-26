@@ -135,7 +135,7 @@ class BlindAssistant:
         tts.save(tts_path)
 
     # Use a media player to play the speech
-        subprocess.run(["afplay", tts_path])
+        subprocess.run(["wmic", "process", "call", "create", '"wmplayer.exe /play /close ' + tts_path + '"'])
 
 
     def analyze_image(self, img):
