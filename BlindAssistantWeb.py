@@ -9,7 +9,7 @@ from imutils.video import WebcamVideoStream, FPS
 from pathlib import Path
 import os
 from gtts import gTTS
-#from deep_translator import GoogleTranslator
+from deep_translator import GoogleTranslator
 
 
 class TrackedObject:
@@ -24,7 +24,8 @@ class BlindAssistant:
         self.cap = WebcamVideoStream(src=0).start()
         self.model = YOLO("yolov8n.pt")
         self.fps = FPS().start()
-        
+        self.analysis_text = ""
+
         
         
 
@@ -39,7 +40,6 @@ class BlindAssistant:
               "dining table", "toilet", "tv monitor", "laptop", "mouse", "remote", "keyboard", "cell phone",
               "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors",
               "teddy bear", "hair drier", "toothbrush"]
-        
         
         self.object_real_height = {"person": 1.75, "bicycle": 1.0, "car": 1.5, "motorbike": 1.0, "aeroplane": 2.0, 
                                  "bus": 3.0, "train": 4.0, "truck": 2.5, "boat": 2.0, "traffic light": 0.5, 
@@ -125,17 +125,17 @@ class BlindAssistant:
         return direction
     def speak_text(self, text,lang='en'):
     # Initialize gTTS with the text
-        #translated_text = GoogleTranslator(source='auto', target=lang).translate(text)
+        translated_text = GoogleTranslator(source='auto', target=lang).translate(text)
 
         # Initialize gTTS with the translated text
-        tts = gTTS(text=text, lang=lang)
+        tts = gTTS(text=translated_text, lang=lang)
         
     # Save the speech to a temporary file
         tts_path = "speech.mp3"
         tts.save(tts_path)
 
     # Use a media player to play the speech
-        subprocess.run(["wmic", "process", "call", "create", '"wmplayer.exe /play /close ' + tts_path + '"'])
+        subprocess.run(["afplay", tts_path])
 
 
     def analyze_image(self, img):
@@ -158,8 +158,11 @@ class BlindAssistant:
             # Check the response for correctness
             if response and response.text:
                 
+                
                 # Print the response text
                 print("Analysis response:", response.text)
+                self.analysis_text = response.text
+
 
                 # Speak the response text    
                 self.speak_text(response.text)
@@ -344,7 +347,8 @@ class BlindAssistant:
 
                 # Create shorter phrases
                 label = f"{self.classNames[cls]} at {distance:.2f} meters, {direction}"
-                #print(label) 
+                
+                print(label) 
                 #time.sleep(1)
 
                 text_to_speak.append(label)
