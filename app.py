@@ -1,5 +1,5 @@
 from flask import Flask, render_template, Response, redirect, url_for,jsonify
-from blindenv import BlindAssistant
+from BlindAssistantWeb import BlindAssistant
 import sys
 
 app = Flask(__name__)
