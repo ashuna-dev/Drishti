@@ -69,7 +69,7 @@
 
     <div id="terminal-container">
         <h1>Analysis Text</h1>
-        <pre id="terminal-output">{{ analysis_text }}</pre>
+        <pre id="terminal-output"></pre>
         <button id="clear-button">Clear</button>
     </div>
 
@@ -79,8 +79,24 @@
             document.getElementById('terminal-output').innerText = '';
         }
 
-        // Add event listener to the Clear button
+        // Function to update the analysis text using AJAX
+        function updateAnalysisText() {
+            fetch('/get_analysis_text')
+                .then(response => response.text())
+                .then(text => {
+                    document.getElementById('terminal-output').innerText = text;
+                })
+                .catch(error => console.error('Error fetching analysis text:', error));
+        }
+
+        // Add event listener to clear button
         document.getElementById('clear-button').addEventListener('click', clearTerminal);
+
+        // Update the analysis text initially
+        updateAnalysisText();
+
+        // Update the analysis text every 5 seconds
+        setInterval(updateAnalysisText, 15000);
     </script>
 </body>
 </html>
