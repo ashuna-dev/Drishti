@@ -1,8 +1,6 @@
 from flask import Flask, render_template, Response, redirect, url_for,jsonify
-from blindenv import BlindAssistant
+from BlindAssistantWeb import BlindAssistant
 import sys
-import textwrap
-import time
 
 app = Flask(__name__)
 blind_assistant = None
@@ -35,9 +33,7 @@ def assistant():
 def get_analysis_text():
     global blind_assistant
     if blind_assistant is not None:
-        time.sleep(15)
         analysis_text = blind_assistant.analysis_text
-        wrapped_text = textwrap.fill(analysis_text, width=40)
         return f'Analysis Text={analysis_text}'
     else:
         return 'Analysis Text=Blind Assistant is not running'
