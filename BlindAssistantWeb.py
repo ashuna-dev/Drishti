@@ -86,7 +86,7 @@ class BlindAssistant:
             "top_k": 1,
             "max_output_tokens": 2048
         }
-        self.model_genai = genai.GenerativeModel("gemini-pro-vision", generation_config=generation_config)
+        self.model_genai = genai.GenerativeModel("gemini-1.5-pro", generation_config=generation_config)
 
         # Create a thread pool executor
         self.executor = ThreadPoolExecutor(max_workers=1)
